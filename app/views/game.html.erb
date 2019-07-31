@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" class="mdl-js">
+    <%= render "header.html.erb" %>
+  <body>
+    <section id="introduction">
+      <div class="container">
+        <div class="row fill-viewport align-items-center justify-content-center">
+          <div class="col-12 col-md-6">
+            <div class="row">
+              <div class="col-md-auto">
+                <h1 class="text-white title"><%= I18n.t(:codebreaker) %></h1>
+              </div>
+            </div>
+            <p class="lead text-white-70">
+              <%= I18n.t(:hello_msg, name: game_session.name)%><%= I18n.t(:mini_rules)%>
+            </p>
+            <hr class="mb-4">
+            <div class="row">
+              <div class="col button">
+                <button type="button" class="btn btn-primary" disabled>
+                  <%= I18n.t(:level)%>:
+                  <span class="badge badge-light">
+                    <%= game_session.difficulty %>
+                  </span>
+                </button>
+              </div>
+              <div class="col text-center button">
+                <button type="button" class="btn btn-primary" disabled>
+                  <%= I18n.t(:attempts)%>:
+                  <span class="badge badge-light"><%= game_session.diff_try %></span>
+                </button>
+              </div>
+              <div class="col button">
+                <button type="button" class="btn btn-primary float-right">
+                  <%= I18n.t(:hints)%>:
+                  <span class="badge badge-light"><%= game_session.diff_hints %></span>
+                </button>
+              </div>
+            </div>
+            <hr class="mb-4">
+            <form method="post" action="/attempt">
+              <div class="form-group">
+                <input class="form-control guess_input" name="number" pattern="^[1-6]{4}$"
+                <% if @request.session[:attempt_code].empty? %>
+                  placeholder="1234"
+                <% else %>
+                  placeholder="<%= @request.session[:attempt] %>"
+                <% end %>
+                 required="" autocomplete="off">
+              </div>
+              <div class="form-group guess_markers_list">
+                <div id="guess_marker">
+                  <% if @request.session[:attempt_code].empty? %>
+                    <% 4.times do %>
+                      <button type="button" class="btn btn-danger marks" disabled>x</button>
+                    <% end %>
+                  <% else %>
+                    <% @request.session[:attempt_code].each_char do |el| %>
+                      <% if el == '+'%> <button type="button" class="btn btn-success marks" disabled>+</button>
+                      <% elsif el == '-'%> <button type="button" class="btn btn-primary marks" disabled>-</button>
+                      <% end %>
+                    <% end %>
+                  <% end %>
+                </div>
+              </div>
+              <hr class="mb-4">
+              <button type="submit" class="btn btn-primary btn-lg">
+                <%= I18n.t(:submit)%>
+              </button>
+            </form>
+            <form method="post" action="/hint">
+            <button class="btn btn-warning btn-lg float-right" role="button"
+              <% if game_session.diff_hints.zero? %> disabled <% end %>>
+                <%= I18n.t(:show_hint)%>
+              <% if @request.session[:show_hint] %>
+              <% @request.session[:show_hint].each_char do |hint| %>
+                <span class="badge badge-light">
+                  <%= hint %>
+                </span>
+                <% end %>
+              <% end %>
+            </button>
+          </form>
+
+          </div>
+        </div>
+       </div>
+    </section>
+  </body>
+</html>
