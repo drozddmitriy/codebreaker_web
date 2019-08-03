@@ -119,9 +119,8 @@ RSpec.describe Racker do
       it 'follow redirect' do
         follow_redirect!
         expect(last_response.body).to include I18n.t(:hello_msg, name: last_request.session[:game].name)
-       end
+      end
     end
-
   end
 
   describe 'lose' do
@@ -160,7 +159,7 @@ RSpec.describe Racker do
       it 'follow redirect' do
         follow_redirect!
         expect(last_response.body).to include I18n.t(:hello_msg, name: last_request.session[:game].name)
-       end
+      end
     end
   end
 end
