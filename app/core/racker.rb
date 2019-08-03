@@ -37,9 +37,9 @@ class Racker
       game = Game.new
       game.set_code
       game.name = @request.params['player_name']
+      @request.session[:win] = false
       @request.session[:attempt_code] = []
       @request.session[:show] = false
-
       case @request.params['level']
       when 'easy' then game.set_difficul('easy', 15, 2)
       when 'medium' then game.set_difficul('medium', 10)
@@ -58,16 +58,17 @@ class Racker
 
       attempt = @request.params['number']
       game_session.input_code = attempt
-
       game_session.add_try
       result = game_session.check
 
-      return win if result == true
+      if result == true
+        @request.session[:win] = true
+        return win
+      end
 
       @request.session[:attempt] = attempt
       @request.session[:attempt_code] = result
       @request.session[:show_hint] = false
-
       response.redirect('/game')
     end
   end
@@ -83,7 +84,6 @@ class Racker
     console = Console.new
     data = console.load
     @data_stat = console.sort_player(data)
-
     statistics_view
   end
 
@@ -100,6 +100,8 @@ class Racker
   def lose
     return error404_view unless exist?(:game)
 
+    return redirect_game if game_session.diff_try > 0
+    
     Rack::Response.new(lose_view) do
       @request.session.clear
     end
@@ -107,6 +109,8 @@ class Racker
 
   def win
     return error404_view unless exist?(:game)
+
+    return redirect_game unless @request.session[:win]
 
     Rack::Response.new(win_view) do
       Console.new.save(to_hash)
@@ -126,5 +130,11 @@ class Racker
     hash = {}
     keys.zip(array) { |key, val| hash[key.to_sym] = val }
     hash
+  end
+
+  def redirect_game
+    Rack::Response.new do |response|
+      response.redirect('/game')
+    end
   end
 end
