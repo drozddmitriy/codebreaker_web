@@ -25,29 +25,31 @@ class Racker
   end
 
   def game
-    @request.session[:game] = start_game
+    game = start_game
+    return error404_view unless game
+
+    @request.session[:game] = game
 
     game_view
   end
 
   def start_game
-    if exist?(:game)
-      game_session
-    else
-      game = Game.new
-      game.set_code
-      game.name = @request.params['player_name']
-      @request.session[:win] = false
-      @request.session[:attempt_code] = []
-      @request.session[:show] = false
-      case @request.params['level']
-      when 'easy' then game.set_difficul('easy', 15, 2)
-      when 'medium' then game.set_difficul('medium', 10)
-      when 'hell' then game.set_difficul('hell', 5)
-      end
+    return game_session if exist?(:game)
 
-      game
+    return false if @request.params.empty?
+
+    game = Game.new
+    game.set_code
+    game.name = @request.params['player_name']
+    @request.session[:win] = false
+    @request.session[:attempt_code] = []
+    @request.session[:show] = false
+    case @request.params['level']
+    when 'easy' then game.set_difficul('easy', 15, 2)
+    when 'medium' then game.set_difficul('medium', 10)
+    when 'hell' then game.set_difficul('hell', 5)
     end
+    game
   end
 
   def attempt
@@ -100,8 +102,8 @@ class Racker
   def lose
     return error404_view unless exist?(:game)
 
-    return redirect_game if game_session.diff_try > 0
-    
+    return redirect_game if game_session.diff_try.positive?
+
     Rack::Response.new(lose_view) do
       @request.session.clear
     end
