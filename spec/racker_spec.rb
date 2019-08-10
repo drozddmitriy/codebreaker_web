@@ -1,10 +1,11 @@
 require 'spec_helper'
 
 RSpec.describe Racker do
+  let(:path) { 'data_test.yml' }
   let(:app) { Rack::Builder.parse_file('config.ru').first }
   let(:game) { Game.new }
 
-  describe 'statuses' do
+  describe '#statuses' do
     context 'when root path' do
       before { get '/' }
 
@@ -43,7 +44,7 @@ RSpec.describe Racker do
     end
   end
 
-  describe 'hint' do
+  describe '#hint' do
     before do
       game.set_code
       env 'rack.session', game: game, show_hint: false
@@ -55,7 +56,7 @@ RSpec.describe Racker do
     end
   end
 
-  describe 'attempt' do
+  describe '#attempt' do
     before do
       game.set_code
       game.set_difficul('hell', 5)
@@ -68,7 +69,7 @@ RSpec.describe Racker do
     end
   end
 
-  describe 'game' do
+  describe '#game' do
     before do
       post '/game', player_name: 'test', level: 'hell'
     end
@@ -84,13 +85,19 @@ RSpec.describe Racker do
     end
   end
 
-  describe 'win' do
+  describe '#win' do
     context 'when win path' do
       before do
+        File.new(path, 'w+')
+        stub_const('Racker::FILE_NAME', path)
         game.name = 'test'
         game.set_difficul('hell', 5)
         env 'rack.session', game: game, win: true
         get '/win'
+      end
+
+      after do
+        File.delete(path)
       end
 
       it 'returns status ok' do
@@ -101,29 +108,29 @@ RSpec.describe Racker do
         expect(last_response.body).to include I18n.t(:congratulations, name: game.name)
       end
     end
+  end
 
-    context 'redirect to game' do
-      before do
-        game.name = 'test'
-        game.attempts = 5
-        game.try = 2
-        game.set_difficul('hell', 5)
-        env 'rack.session', game: game, attempt_code: '1234'
-        get '/win'
-      end
+  describe '#redirect to game' do
+    before do
+      game.name = 'test'
+      game.attempts = 5
+      game.try = 2
+      game.set_difficul('hell', 5)
+      env 'rack.session', game: game, attempt_code: '1234'
+      get '/win'
+    end
 
-      it 'returns redirect' do
-        expect(last_response).to be_redirect
-      end
+    it 'returns redirect' do
+      expect(last_response).to be_redirect
+    end
 
-      it 'follow redirect' do
-        follow_redirect!
-        expect(last_response.body).to include I18n.t(:hello_msg, name: last_request.session[:game].name)
-      end
+    it 'follow redirect' do
+      follow_redirect!
+      expect(last_response.body).to include I18n.t(:hello_msg, name: last_request.session[:game].name)
     end
   end
 
-  describe 'lose' do
+  describe '#lose' do
     context 'when lose path' do
       before do
         game.name = 'test'

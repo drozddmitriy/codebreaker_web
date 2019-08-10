@@ -1,4 +1,5 @@
 class Racker
+  FILE_NAME = 'data.yml'.freeze
   include RenderModule
   attr_reader :request
 
@@ -115,7 +116,7 @@ class Racker
     return redirect_game unless @request.session[:win]
 
     Rack::Response.new(win_view) do
-      Console.new.save(to_hash)
+      Console.new.save(to_hash, FILE_NAME)
       @request.session.clear
     end
   end
