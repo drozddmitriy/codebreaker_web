@@ -2,11 +2,15 @@
 <html lang="en" class="mdl-js">
   <%= render "header.html.erb" %>
   <body>
-    <section class="jumbotron text-center">
+    <section id="introduction">
       <div class="container">
-        <h1 class="jumbotron-heading"><%= I18n.t(:error_404) %></h1>
-        <p class="lead text-muted"><%= I18n.t(:page_not_found) %></p>
-        <img src="https://media0.giphy.com/media/kBlPua2g1f66PGjT7w/giphy.gif?cid=790b76115d40552c6b38564a3660c0c2&rid=giphy.gif" alt="">
-      </div>
+        <div class="row fill-viewport align-items-center justify-content-center">
+          <div class="col-12 col-md-6">
+            <h1 class="jumbotron-heading"><%= I18n.t(:error_404) %></h1>
+            <p class="text-white"><%= I18n.t(:page_not_found) %></p>
+            <img src="https://media0.giphy.com/media/kBlPua2g1f66PGjT7w/giphy.gif?cid=790b76115d40552c6b38564a3660c0c2&rid=giphy.gif" alt="">
+          </div>
+       </div>
+    </section>
   </body>
 </html>
