@@ -2,13 +2,13 @@ Style/FrozenStringLiteralComment:
   Enabled: false
 
 Metrics/LineLength:
-  Max: 155
+  Max: 120
 
 Style/Documentation:
   Enabled: false
 
 Metrics/MethodLength:
-  Max: 30
+  Max: 20
 
 Metrics/AbcSize:
   Max: 30
@@ -16,8 +16,10 @@ Metrics/AbcSize:
 Metrics/ClassLength:
   Max: 120
 
-Metrics/BlockLength:
-  Max: 40
-
 Metrics/CyclomaticComplexity:
   Max: 9
+
+Metrics/BlockLength:
+  Enabled: true
+  Exclude:
+    - spec/**/*

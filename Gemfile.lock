@@ -1,9 +1,9 @@
 GIT
   remote: https://github.com/drozddmitriy/codebreaker
-  revision: 0117b63760cc1f63e2e982f0eeae9c01a1d0dcd0
+  revision: e8260bd663d96ecaeeed59be75b3d2b74c5fd177
   branch: develop
   specs:
-    codebreaker (1.1.1)
+    codebreaker (1.1.2)
 
 GEM
   remote: https://rubygems.org/
@@ -52,7 +52,7 @@ GEM
       rainbow (>= 2.2.2, < 4.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 1.4.0, < 1.7)
-    rubocop-rspec (1.34.0)
+    rubocop-rspec (1.35.0)
       rubocop (>= 0.60.0)
     ruby-progressbar (1.10.1)
     ruby_parser (3.13.1)
