@@ -1,0 +1,35 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/repo
+    docker:
+      - image: ruby:2.6.0
+        environment:
+          PG_HOST: localhost
+          PG_USER: ubuntu
+          RAILS_ENV: test
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - circle-ci-example-{{ checksum "Gemfile.lock" }}
+            - circle-ci-example-
+
+      - run:
+          name: Install bundler
+          command: gem install bundler
+
+      - run:
+          name: Install dependencies
+          command: bundle check --path=vendor/bundle || bundle install --path=vendor/bundle --jobs 4 --retry 3
+
+      - save_cache:
+          key: rails-demo-{{ checksum "Gemfile.lock" }}
+          paths:
+            - vendor/bundle
+
+      - run:
+          name: Run tests
+          command: bundle exec rspec --format documentation --color
