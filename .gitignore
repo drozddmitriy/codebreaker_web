@@ -1,3 +1,4 @@
 # Ignore yml files
-tmp/
-coverage/
+data.yml
+/tmp/*
+/coverage/*

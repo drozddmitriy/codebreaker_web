@@ -41,14 +41,14 @@ class Racker
 
     game = Game.new
     game.set_code
-    game.name = @request.params['player_name']
+    game.player = @request.params['player_name']
     @request.session[:win] = false
     @request.session[:attempt_code] = []
     @request.session[:show] = false
     case @request.params['level']
-    when 'easy' then game.set_difficul('easy', 15, 2)
-    when 'medium' then game.set_difficul('medium', 10)
-    when 'hell' then game.set_difficul('hell', 5)
+    when 'easy' then game.difficulty_player('easy', 15, 2)
+    when 'medium' then game.difficulty_player('medium', 10)
+    when 'hell' then game.difficulty_player('hell', 5)
     end
     game
   end
@@ -62,15 +62,14 @@ class Racker
       attempt = @request.params['number']
       game_session.input_code = attempt
       game_session.add_try
-      result = game_session.check
 
-      if result == true
+      if game_session.win?
         @request.session[:win] = true
         return win
       end
 
       @request.session[:attempt] = attempt
-      @request.session[:attempt_code] = result
+      @request.session[:attempt_code] = game_session.check
       @request.session[:show_hint] = false
       response.redirect('/game')
     end
@@ -128,7 +127,7 @@ class Racker
   def to_hash
     date = DateTime.now.strftime('%d/%m/%Y %H:%M:%S')
     game = game_session
-    array = [game.name, game.attempts, game.hints_total, game.hints_used, game.difficulty, game.try, date]
+    array = [game.player, game.attempts, game.hints_total, game.hints_used, game.difficulty, game.try, date]
     keys = %w[name attempts hints_total hints_used difficulty try date]
     hash = {}
     keys.zip(array) { |key, val| hash[key.to_sym] = val }
