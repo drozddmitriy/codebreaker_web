@@ -1,11 +1,11 @@
 # frozen_string_literal: true
-ruby '2.5.1'
+
 source 'https://rubygems.org'
 
 git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
 
 gem 'codebreaker', git: 'https://github.com/drozddmitriy/codebreaker', branch: 'develop'
-
+ruby '2.6.0'
 gem 'fasterer', '~> 0.5.1'
 gem 'i18n'
 gem 'pry', '~> 0.12.2'
