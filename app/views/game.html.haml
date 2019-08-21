@@ -1,0 +1,54 @@
+!!!
+%html.mdl-js{:lang => "en"}
+  %body
+    = render "header.html.haml"
+    %section#introduction
+      .container
+        .row.fill-viewport.align-items-center.justify-content-center
+          .col-12.col-md-6
+            .row
+              .col-md-auto
+                %h1.text-white.title= I18n.t(:codebreaker)
+            %p.lead.text-white-70
+              = I18n.t(:hello_msg, name: game_session.player)
+              = I18n.t(:mini_rules)
+            %hr.mb-4/
+            .row
+              .col.button
+                %button.btn.btn-primary{:disabled => "disabled", :type => "button"}
+                  = I18n.t(:level)
+                  \:
+                  %span.badge.badge-light
+                    = game_session.difficulty
+              .col.text-center.button
+                %button.btn.btn-primary{:disabled => "disabled", :type => "button"}
+                  = I18n.t(:attempts)
+                  \:
+                  %span.badge.badge-light= game_session.diff_try
+              .col.button
+                %button.btn.btn-primary.float-right{:type => "button"}
+                  = I18n.t(:hints)
+                  \:
+                  %span.badge.badge-light= game_session.diff_hints
+            %hr.mb-4/
+            %form{:action => "/attempt", :method => "post"}
+              .form-group
+                %input.form-control.guess_input{:name => "number", :pattern => "^[1-6]{4}$", :required => "", :autocomplete => "off", :placeholder => "#{placeholder(@request.session[:attempt_code], @request.session[:attempt])}"}
+              .form-group.guess_markers_list
+                #guess_marker
+                  - if @request.session[:attempt_code].empty?
+                    - 4.times do
+                      %button.btn.btn-danger.marks{:disabled => "disabled", :type => "button"} x
+                  - else
+                    - @request.session[:attempt_code].each_char do |el|
+                      - if el == '+'
+                        %button.btn.btn-success.marks{:disabled => "disabled", :type => "button"} +
+                      - elsif el == '-'
+                        %button.btn.btn-primary.marks{:disabled => "disabled", :type => "button"} -
+              %hr.mb-4/
+              %button.btn.btn-primary.btn-lg{:type => "submit"}
+                = I18n.t(:submit)
+            %form{action: "/hint", method: "post"}
+              %button.btn.btn-warning.btn-lg.float-right{role: "button", disabled: disabled_method(game_session)}
+                = I18n.t(:show_hint)
+                = show_hint_decorator(@request.session[:show_hint])

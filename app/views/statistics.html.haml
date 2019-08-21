@@ -1,0 +1,41 @@
+!!!
+%html.mdl-js{:lang => "en"}
+  %body
+    = render "header.html.haml"
+    %section#introduction
+      .container
+        .row.fill-viewport.align-items-center.justify-content-center
+          .col-12.col-md-6
+            .row
+              .col-md-auto
+                %h1.text-white.title= I18n.t(:codebreaker)
+            %p.lead.text-white-70
+              = I18n.t(:top_players)
+              \:
+            %hr.mb-4/
+            .table-responsive-md.scores
+              %table.table.table-striped.table.table-sm
+                %thead
+                  %tr
+                    %th{:scope => "col"} #
+                    %th{:scope => "col"}= I18n.t(:name)
+                    %th{:scope => "col"}= I18n.t(:level)
+                    %th{:scope => "col"}= I18n.t(:attempts_left)
+                    %th{:scope => "col"}= I18n.t(:hints_left)
+                    %th{:scope => "col"}= I18n.t(:date)
+                %tbody
+                  - @data_stat.each_with_index do |data, id|
+                    %tr
+                      %th{:scope => "row"}= id + 1
+                      %td= data[:name]
+                      %td= data[:difficulty]
+                      %td
+                        = data[:try]
+                        \/#{data[:attempts]}
+                      %td
+                        = data[:hints_used]
+                        \/#{data[:hints_total]}
+                      %td= data[:date]
+            %hr.mb-4/
+            %a.btn.btn-primary.btn-lg{:href => "/", :role => "button"}
+              = I18n.t(:home)

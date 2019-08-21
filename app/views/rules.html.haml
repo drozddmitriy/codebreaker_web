@@ -1,0 +1,22 @@
+!!!
+%html.mdl-js{:lang => "en"}
+  %body
+    = render "header.html.haml"
+    %section#introduction
+      .container
+        .row.fill-viewport.align-items-center.justify-content-center
+          .col-12.col-md-6
+            .row
+              .col-md-auto
+                %h1.text-white.title= I18n.t(:codebreaker)
+            %p.lead.text-white-70= I18n.t(:rules)
+            %hr.mb-4/
+            .row.justify-content-center
+              - (1..7).each do |i|
+                %p.lead.text-white-70{:align => "justify"}
+                  = I18n.t(("game_rules_" + i.to_s).to_sym)
+            %hr.mb-4/
+            %a.btn.btn-primary.btn-lg{:href => "/", :role => "button"}
+              = I18n.t(:home)
+            %hr.mb-4/
+        .container

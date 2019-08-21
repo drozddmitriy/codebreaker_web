@@ -1,6 +1,10 @@
 class Racker
   FILE_NAME = 'data.yml'.freeze
+  DIFFICULTIES = Codebreaker::Console::DIFFICULTIES
   include RenderModule
+  include RackerHelper
+  include Codebreaker::DatabaseModule
+  include Codebreaker::StatisticModule
   attr_reader :request
 
   def self.call(env)
@@ -17,17 +21,23 @@ class Racker
     when '/game' then game
     when '/attempt' then attempt
     when '/win' then win
+    else response_helper
+    end
+  end
+
+  def response_helper
+    case @request.path
     when '/lose' then lose
     when '/hint' then show_hint
     when '/rules' then rules_view
     when '/statistics' then statistics
-    else error404_view
+    else not_found_view
     end
   end
 
   def game
     game = start_game
-    return error404_view unless game
+    return not_found_view unless game
 
     @request.session[:game] = game
 
@@ -39,25 +49,33 @@ class Racker
 
     return false if @request.params.empty?
 
-    game = Game.new
+    game = Codebreaker::Game.new
     game.set_code
     game.player = @request.params['player_name']
     @request.session[:win] = false
     @request.session[:attempt_code] = []
     @request.session[:show] = false
-    case @request.params['level']
-    when 'easy' then game.difficulty_player('easy', 15, 2)
-    when 'medium' then game.difficulty_player('medium', 10)
-    when 'hell' then game.difficulty_player('hell', 5)
-    end
+    difficulty_player(game)
     game
   end
 
+  def difficulty_player(game)
+    case @request.params['level']
+    when I18n.t(:easy, scope: [:difficulty]) then
+      game.difficulty_player(I18n.t(:easy, scope: [:difficulty]), DIFFICULTIES[:easy][:attempts],
+                             DIFFICULTIES[:easy][:hints])
+    when I18n.t(:medium, scope: [:difficulty]) then
+      game.difficulty_player(I18n.t(:medium, scope: [:difficulty]), DIFFICULTIES[:medium][:attempts])
+    when I18n.t(:hell, scope: [:difficulty]) then
+      game.difficulty_player(I18n.t(:hell, scope: [:difficulty]), DIFFICULTIES[:hell][:attempts])
+    end
+  end
+
   def attempt
-    return error404_view unless exist?(:game)
+    return not_found_view unless exist?(:game)
 
     Rack::Response.new do |response|
-      return lose if @request.session[:game].diff_try.zero?
+      return lose if game_session.diff_try.zero?
 
       attempt = @request.params['number']
       game_session.input_code = attempt
@@ -68,11 +86,15 @@ class Racker
         return win
       end
 
-      @request.session[:attempt] = attempt
-      @request.session[:attempt_code] = game_session.check
-      @request.session[:show_hint] = false
+      attempt_player(attempt)
       response.redirect('/game')
     end
+  end
+
+  def attempt_player(attempt)
+    @request.session[:attempt] = attempt
+    @request.session[:attempt_code] = game_session.check
+    @request.session[:show_hint] = false
   end
 
   def show_hint
@@ -83,9 +105,7 @@ class Racker
   end
 
   def statistics
-    console = Console.new
-    data = console.load
-    @data_stat = console.sort_player(data)
+    @data_stat = sort_player(load)
     statistics_view
   end
 
@@ -96,11 +116,11 @@ class Racker
   end
 
   def exist?(param)
-    @request.session.has_key?(param)
+    @request.session.key?(param)
   end
 
   def lose
-    return error404_view unless exist?(:game)
+    return not_found_view unless exist?(:game)
 
     return redirect_game if game_session.diff_try.positive?
 
@@ -110,28 +130,18 @@ class Racker
   end
 
   def win
-    return error404_view unless exist?(:game)
+    return not_found_view unless exist?(:game)
 
     return redirect_game unless @request.session[:win]
 
     Rack::Response.new(win_view) do
-      Console.new.save(to_hash, FILE_NAME)
+      save(to_hash(game_session), FILE_NAME)
       @request.session.clear
     end
   end
 
   def game_session
     @request.session[:game]
-  end
-
-  def to_hash
-    date = DateTime.now.strftime('%d/%m/%Y %H:%M:%S')
-    game = game_session
-    array = [game.player, game.attempts, game.hints_total, game.hints_used, game.difficulty, game.try, date]
-    keys = %w[name attempts hints_total hints_used difficulty try date]
-    hash = {}
-    keys.zip(array) { |key, val| hash[key.to_sym] = val }
-    hash
   end
 
   def redirect_game

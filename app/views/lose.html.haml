@@ -1,0 +1,45 @@
+!!!
+%html.mdl-js{:lang => "en"}
+  %body
+    = render "header.html.haml"
+    %section#introduction
+      .container
+        .row.fill-viewport.align-items-center.justify-content-center
+          .col-12.col-md-6
+            .row
+              .col-md-auto
+                %h1.text-white.title.inline-block= I18n.t(:codebreaker)
+            .row
+              .col.button
+                %button.btn.btn-primary{:disabled => "disabled", :type => "button"}
+                  = I18n.t(:level)
+                  \:
+                  %span.badge.badge-light
+                    = game_session.difficulty
+                %button.btn.btn-primary{:disabled => "disabled", :type => "button"}
+                  = I18n.t(:attempts_left)
+                  \:
+                  %span.badge.badge-light
+                    = game_session.try
+                    \/#{game_session.attempts}
+                %button.btn.btn-primary{:disabled => "disabled", :type => "button"}
+                  = I18n.t(:hints_left)
+                  \:
+                  %span.badge.badge-light
+                    = game_session.hints_used
+                    \/#{game_session.hints_total}
+            %hr.mb-4/
+            .row
+              .text-center
+                .text-center
+                  %h3.text-white
+                    = I18n.t(:oops, name: game_session.player)
+                  %h4.text-white
+                    = I18n.t(:the_code_was)
+                    %strong= game_session.code
+                %img.img-fluid{:alt => "You lose the game!", :src => "/images/lost.gif"}/
+            %hr.mb-4/
+            %a.btn.btn-primary.btn-lg{:href => "/", :role => "button"}
+              = I18n.t(:play_again)
+            %a.btn.btn-success.btn-lg.float-right{:href => "/statistics", :role => "button"}
+              = I18n.t(:statistics)

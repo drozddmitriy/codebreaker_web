@@ -3,7 +3,7 @@ require 'spec_helper'
 RSpec.describe Racker do
   let(:path) { 'data_test.yml' }
   let(:app) { Rack::Builder.parse_file('config.ru').first }
-  let(:game) { Game.new }
+  let(:game) { Codebreaker::Game.new }
 
   describe '#statuses' do
     context 'when root path' do
@@ -11,6 +11,7 @@ RSpec.describe Racker do
 
       it 'returns status ok' do
         expect(last_response).to be_ok
+        expect(last_response.status).to eq 200
       end
 
       it { expect(last_response.body).to include I18n.t(:start_game) }
@@ -19,6 +20,7 @@ RSpec.describe Racker do
     context 'when unknown routes' do
       before { get '/unknown' }
 
+      it { expect(last_response.status).to eq 200 }
       it 'returns status not found' do
         expect(last_response.body).to include I18n.t(:page_not_found)
       end
@@ -29,17 +31,17 @@ RSpec.describe Racker do
 
       it 'returns status ok' do
         expect(last_response).to be_ok
+        expect(last_response.status).to eq 200
       end
 
       it { expect(last_response.body).to include I18n.t(:game_rules_1) }
     end
 
     context 'when statistics path' do
-      before do
-        get '/statistics'
-      end
+      before { get '/statistics' }
 
       it { expect(last_response).to be_ok }
+      it { expect(last_response.status).to eq 200 }
       it { expect(last_response.body).to include I18n.t(:top_players) }
     end
   end
@@ -59,7 +61,7 @@ RSpec.describe Racker do
   describe '#attempt' do
     before do
       game.set_code
-      game.difficulty_player('hell', 5)
+      game.difficulty_player(I18n.t(:hell, scope: [:difficulty]), Racker::DIFFICULTIES[:hell][:attempts])
       env 'rack.session', game: game, show_hint: false
       post '/attempt', number: '1234'
     end
@@ -71,10 +73,11 @@ RSpec.describe Racker do
 
   describe '#game' do
     before do
-      post '/game', player_name: 'test', level: 'hell'
+      post '/game', player_name: 'test', level: I18n.t(:hell, scope: [:difficulty])
     end
 
     context 'when game page response' do
+      it { expect(last_response.status).to eq 200 }
       it 'responses with ok status' do
         expect(last_response).to be_ok
       end
@@ -91,7 +94,7 @@ RSpec.describe Racker do
         File.new(path, 'w+')
         stub_const('Racker::FILE_NAME', path)
         game.player = 'test'
-        game.difficulty_player('hell', 5)
+        game.difficulty_player(I18n.t(:hell, scope: [:difficulty]), Racker::DIFFICULTIES[:hell][:attempts])
         env 'rack.session', game: game, win: true
         get '/win'
       end
@@ -99,6 +102,8 @@ RSpec.describe Racker do
       after do
         File.delete(path)
       end
+
+      it { expect(last_response.status).to eq 200 }
 
       it 'returns status ok' do
         expect(last_response).to be_ok
@@ -115,10 +120,12 @@ RSpec.describe Racker do
       game.player = 'test'
       game.attempts = 5
       game.try = 2
-      game.difficulty_player('hell', 5)
+      game.difficulty_player(I18n.t(:hell, scope: [:difficulty]), Racker::DIFFICULTIES[:hell][:attempts])
       env 'rack.session', game: game, attempt_code: '1234'
       get '/win'
     end
+
+    it { expect(last_response.status).to eq 302 }
 
     it 'returns redirect' do
       expect(last_response).to be_redirect
@@ -140,6 +147,8 @@ RSpec.describe Racker do
         get '/lose'
       end
 
+      it { expect(last_response.status).to eq 200 }
+
       it 'returns status ok' do
         expect(last_response).to be_ok
       end
@@ -154,10 +163,12 @@ RSpec.describe Racker do
         game.player = 'test'
         game.attempts = 5
         game.try = 2
-        game.difficulty_player('hell', 5)
+        game.difficulty_player(I18n.t(:hell, scope: [:difficulty]), Racker::DIFFICULTIES[:hell][:attempts])
         env 'rack.session', game: game, attempt_code: '1234'
         get '/lose'
       end
+
+      it { expect(last_response.status).to eq 302 }
 
       it 'returns redirect' do
         expect(last_response).to be_redirect

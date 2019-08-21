@@ -1,4 +1,8 @@
 en:
+  difficulty:
+    easy: 'easy'
+    medium: 'medium'
+    hell: 'hell'
   codebreaker: Codebreaker 2019
   error_404: Error 404
   page_not_found: Page not found

@@ -1,0 +1,11 @@
+!!!
+%html.mdl-js{lang: "en"}
+  %body
+    = render "header.html.haml"
+    %section#introduction
+      .container
+        .row.fill-viewport.align-items-center.justify-content-center
+          .col-12.col-md-6
+            %h1.jumbotron-heading= I18n.t(:error_404)
+            %p.text-white= I18n.t(:page_not_found)
+            %img{alt: "", src: "https://media0.giphy.com/media/kBlPua2g1f66PGjT7w/giphy.gif?cid=790b76115d40552c6b38564a3660c0c2&rid=giphy.gif"}/
