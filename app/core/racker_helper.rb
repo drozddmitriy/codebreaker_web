@@ -11,10 +11,10 @@ module RackerHelper
 
   def show_hint_decorator(request_session_hint)
     if request_session_hint
-      request_session_hint.each_char do |hint|
-        "%span.badge.badge-light= #{hint}"
-      end
-    end
+     request_session_hint.each_char do |hint|
+       "%span.badge.badge-light= #{hint}"
+     end
+   end
   end
 
   def to_hash(game_session)

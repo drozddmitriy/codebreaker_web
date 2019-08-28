@@ -61,12 +61,12 @@ class Racker
 
   def difficulty_player(game)
     case @request.params['level']
-    when I18n.t(:easy, scope: [:difficulty]) then
+    when I18n.t(:easy, scope: [:difficulty])
       game.difficulty_player(I18n.t(:easy, scope: [:difficulty]), DIFFICULTIES[:easy][:attempts],
                              DIFFICULTIES[:easy][:hints])
-    when I18n.t(:medium, scope: [:difficulty]) then
+    when I18n.t(:medium, scope: [:difficulty])
       game.difficulty_player(I18n.t(:medium, scope: [:difficulty]), DIFFICULTIES[:medium][:attempts])
-    when I18n.t(:hell, scope: [:difficulty]) then
+    when I18n.t(:hell, scope: [:difficulty])
       game.difficulty_player(I18n.t(:hell, scope: [:difficulty]), DIFFICULTIES[:hell][:attempts])
     end
   end
