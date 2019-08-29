@@ -11,10 +11,31 @@ module RackerHelper
 
   def show_hint_decorator(request_session_hint)
     if request_session_hint
+      str = ''
      request_session_hint.each_char do |hint|
-       "%span.badge.badge-light= #{hint}"
+       str << "%span.badge.badge-light #{hint}\n"
      end
+     Haml::Engine.new(str).to_html
    end
+  end
+
+  def show_element_decorator(request_session_attempt)
+    str = ''
+    if request_session_attempt.empty?
+      4.times do
+        str << "%button.btn.btn-danger.marks{:disabled => 'disabled', :type => 'button'} x\n"
+      end
+    else
+      request_session_attempt.each_char do |el|
+        if el == '+'
+          str << "%button.btn.btn-success.marks{:disabled => 'disabled', :type => 'button'} +\n"
+        end
+        if el == '-'
+          str << "%button.btn.btn-primary.marks{:disabled => 'disabled', :type => 'button'} -\n"
+        end
+      end
+    end
+    Haml::Engine.new(str).to_html
   end
 
   def to_hash(game_session)

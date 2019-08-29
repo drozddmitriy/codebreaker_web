@@ -36,15 +36,7 @@
                 %input.form-control.guess_input{:name => "number", :pattern => "^[1-6]{4}$", :required => "", :autocomplete => "off", :placeholder => "#{placeholder(@request.session[:attempt_code], @request.session[:attempt])}"}
               .form-group.guess_markers_list
                 #guess_marker
-                  - if @request.session[:attempt_code].empty?
-                    - 4.times do
-                      %button.btn.btn-danger.marks{:disabled => "disabled", :type => "button"} x
-                  - else
-                    - @request.session[:attempt_code].each_char do |el|
-                      - if el == '+'
-                        %button.btn.btn-success.marks{:disabled => "disabled", :type => "button"} +
-                      - elsif el == '-'
-                        %button.btn.btn-primary.marks{:disabled => "disabled", :type => "button"} -
+                = show_element_decorator(@request.session[:attempt_code])
               %hr.mb-4/
               %button.btn.btn-primary.btn-lg{:type => "submit"}
                 = I18n.t(:submit)
