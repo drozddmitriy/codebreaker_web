@@ -10,13 +10,13 @@ module RackerHelper
   end
 
   def show_hint_decorator(request_session_hint)
-    if request_session_hint
-      str = ''
-     request_session_hint.each_char do |hint|
-       str << "%span.badge.badge-light #{hint}\n"
-     end
-     Haml::Engine.new(str).to_html
-   end
+    return unless request_session_hint
+
+    str = ''
+    request_session_hint.each_char do |hint|
+      str << "%span.badge.badge-light #{hint}\n"
+    end
+    Haml::Engine.new(str).to_html
   end
 
   def show_element_decorator(request_session_attempt)
@@ -27,12 +27,8 @@ module RackerHelper
       end
     else
       request_session_attempt.each_char do |el|
-        if el == '+'
-          str << "%button.btn.btn-success.marks{:disabled => 'disabled', :type => 'button'} +\n"
-        end
-        if el == '-'
-          str << "%button.btn.btn-primary.marks{:disabled => 'disabled', :type => 'button'} -\n"
-        end
+        str << "%button.btn.btn-success.marks{:disabled => 'disabled', :type => 'button'} +\n" if el == '+'
+        str << "%button.btn.btn-primary.marks{:disabled => 'disabled', :type => 'button'} -\n" if el == '-'
       end
     end
     Haml::Engine.new(str).to_html
