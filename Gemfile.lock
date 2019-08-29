@@ -1,9 +1,9 @@
 GIT
   remote: https://github.com/drozddmitriy/codebreaker
-  revision: e8260bd663d96ecaeeed59be75b3d2b74c5fd177
+  revision: 96db9bf9467cbb0fadcaa84028a846379e2b890a
   branch: develop
   specs:
-    codebreaker (1.1.2)
+    codebreaker (1.2.2)
 
 GEM
   remote: https://rubygems.org/
@@ -85,7 +85,6 @@ DEPENDENCIES
   rubocop (~> 0.71.0)
   rubocop-rspec
   simplecov
-
 
 BUNDLED WITH
    2.0.2
