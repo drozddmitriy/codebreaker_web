@@ -1,8 +1,5 @@
 class Racker
   FILE_NAME = 'data.yml'.freeze
-  DIFFICULTIES = { easy: { attempts: 15, hints: 2 },
-                   medium: { attempts: 10, hints: 1 },
-                   hell: { attempts: 5, hints: 1 } }.freeze
   include RenderModule
   include RackerHelper
   include Codebreaker::DatabaseModule
@@ -38,11 +35,9 @@ class Racker
   end
 
   def game
-    game = start_game
-    return not_found_view unless game
+    return not_found_view unless (game = start_game)
 
     @request.session[:game] = game
-
     game_view
   end
 
@@ -63,13 +58,9 @@ class Racker
 
   def difficulty_player(game)
     case @request.params['level']
-    when I18n.t(:easy, scope: [:difficulty])
-      game.difficulty_player(I18n.t(:easy, scope: [:difficulty]), DIFFICULTIES[:easy][:attempts],
-                             DIFFICULTIES[:easy][:hints])
-    when I18n.t(:medium, scope: [:difficulty])
-      game.difficulty_player(I18n.t(:medium, scope: [:difficulty]), DIFFICULTIES[:medium][:attempts])
-    when I18n.t(:hell, scope: [:difficulty])
-      game.difficulty_player(I18n.t(:hell, scope: [:difficulty]), DIFFICULTIES[:hell][:attempts])
+    when I18n.t(:easy, scope: [:difficulty]) then game.difficulty_for_player(:easy)
+    when I18n.t(:medium, scope: [:difficulty]) then game.difficulty_for_player(:medium)
+    when I18n.t(:hell, scope: [:difficulty]) then game.difficulty_for_player(:hell)
     end
   end
 
@@ -77,18 +68,15 @@ class Racker
     return not_found_view unless exist?(:game)
 
     Rack::Response.new do |response|
-      return lose if game_session.diff_try.zero?
-
       attempt = @request.params['number']
       game_session.input_code = attempt
-      game_session.add_try
+      attempt_player(attempt)
+      return lose if game_session.diff_try.zero?
 
       if game_session.win?
         @request.session[:win] = true
         return win
       end
-
-      attempt_player(attempt)
       response.redirect('/game')
     end
   end

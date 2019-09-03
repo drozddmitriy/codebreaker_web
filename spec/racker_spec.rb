@@ -1,6 +1,7 @@
 require 'spec_helper'
 
 RSpec.describe Racker do
+  DIFFICULTIES = Codebreaker::Game::DIFFICULTIES
   let(:path) { 'data_test.yml' }
   let(:app) { Rack::Builder.parse_file('config.ru').first }
   let(:game) { Codebreaker::Game.new }
@@ -9,10 +10,7 @@ RSpec.describe Racker do
     context 'when root path' do
       before { get '/' }
 
-      it 'returns status ok' do
-        expect(last_response).to be_ok
-        expect(last_response.status).to eq 200
-      end
+      it { expect(last_response.status).to eq 200 }
 
       it { expect(last_response.body).to include I18n.t(:start_game) }
     end
@@ -29,10 +27,7 @@ RSpec.describe Racker do
     context 'when rules path' do
       before { get '/rules' }
 
-      it 'returns status ok' do
-        expect(last_response).to be_ok
-        expect(last_response.status).to eq 200
-      end
+      it { expect(last_response.status).to eq 200 }
 
       it { expect(last_response.body).to include I18n.t(:game_rules_1) }
     end
@@ -40,7 +35,6 @@ RSpec.describe Racker do
     context 'when statistics path' do
       before { get '/statistics' }
 
-      it { expect(last_response).to be_ok }
       it { expect(last_response.status).to eq 200 }
       it { expect(last_response.body).to include I18n.t(:top_players) }
     end
@@ -48,6 +42,8 @@ RSpec.describe Racker do
 
   describe '#hint' do
     before do
+      game.hints_total = 2
+      game.hints_used = 1
       game.set_code
       env 'rack.session', game: game, show_hint: false
       post '/hint'
@@ -61,7 +57,7 @@ RSpec.describe Racker do
   describe '#attempt' do
     before do
       game.set_code
-      game.difficulty_player(I18n.t(:hell, scope: [:difficulty]), Racker::DIFFICULTIES[:hell][:attempts])
+      game.difficulty_player(I18n.t(:hell, scope: [:difficulty]), DIFFICULTIES[:hell][:attempts])
       env 'rack.session', game: game, show_hint: false
       post '/attempt', number: '1234'
     end
@@ -78,9 +74,6 @@ RSpec.describe Racker do
 
     context 'when game page response' do
       it { expect(last_response.status).to eq 200 }
-      it 'responses with ok status' do
-        expect(last_response).to be_ok
-      end
 
       it 'contains player_name' do
         expect(last_response.body).to include I18n.t(:hello_msg, name: last_request.session[:game].player)
@@ -94,7 +87,7 @@ RSpec.describe Racker do
         File.new(path, 'w+')
         stub_const('Racker::FILE_NAME', path)
         game.player = 'test'
-        game.difficulty_player(I18n.t(:hell, scope: [:difficulty]), Racker::DIFFICULTIES[:hell][:attempts])
+        game.difficulty_player(I18n.t(:hell, scope: [:difficulty]), DIFFICULTIES[:hell][:attempts])
         env 'rack.session', game: game, win: true
         get '/win'
       end
@@ -104,10 +97,6 @@ RSpec.describe Racker do
       end
 
       it { expect(last_response.status).to eq 200 }
-
-      it 'returns status ok' do
-        expect(last_response).to be_ok
-      end
 
       it 'show win page' do
         expect(last_response.body).to include I18n.t(:congratulations, name: game.player)
@@ -120,16 +109,12 @@ RSpec.describe Racker do
       game.player = 'test'
       game.attempts = 5
       game.try = 2
-      game.difficulty_player(I18n.t(:hell, scope: [:difficulty]), Racker::DIFFICULTIES[:hell][:attempts])
+      game.difficulty_player(I18n.t(:hell, scope: [:difficulty]), DIFFICULTIES[:hell][:attempts])
       env 'rack.session', game: game, attempt_code: '1234'
       get '/win'
     end
 
     it { expect(last_response.status).to eq 302 }
-
-    it 'returns redirect' do
-      expect(last_response).to be_redirect
-    end
 
     it 'follow redirect' do
       follow_redirect!
@@ -149,10 +134,6 @@ RSpec.describe Racker do
 
       it { expect(last_response.status).to eq 200 }
 
-      it 'returns status ok' do
-        expect(last_response).to be_ok
-      end
-
       it 'show lose page' do
         expect(last_response.body).to include I18n.t(:oops, name: game.player)
       end
@@ -163,16 +144,12 @@ RSpec.describe Racker do
         game.player = 'test'
         game.attempts = 5
         game.try = 2
-        game.difficulty_player(I18n.t(:hell, scope: [:difficulty]), Racker::DIFFICULTIES[:hell][:attempts])
+        game.difficulty_player(I18n.t(:hell, scope: [:difficulty]), DIFFICULTIES[:hell][:attempts])
         env 'rack.session', game: game, attempt_code: '1234'
         get '/lose'
       end
 
       it { expect(last_response.status).to eq 302 }
-
-      it 'returns redirect' do
-        expect(last_response).to be_redirect
-      end
 
       it 'follow redirect' do
         follow_redirect!

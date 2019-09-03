@@ -1,10 +1,15 @@
 module RackerHelper
+  DEFAULT_PLACEHOLDER = '1234'.freeze
+  PLUS = '+'.freeze
+  MINUS = '-'.freeze
+  NONE = 'x'.freeze
+
   def disabled_method(game_session)
     game_session.diff_hints.zero?
   end
 
   def placeholder(request_session, request_session_attempt)
-    return '1234' if request_session.empty?
+    return DEFAULT_PLACEHOLDER if request_session.empty?
 
     request_session_attempt
   end
@@ -12,26 +17,27 @@ module RackerHelper
   def show_hint_decorator(request_session_hint)
     return unless request_session_hint
 
-    str = ''
-    request_session_hint.each_char do |hint|
-      str << "%span.badge.badge-light #{hint}\n"
-    end
-    Haml::Engine.new(str).to_html
+    to_haml = request_session_hint.chars.map { |hint| "%span.badge.badge-light #{hint}\n" }.join
+    Haml::Engine.new(to_haml).to_html
   end
 
   def show_element_decorator(request_session_attempt)
-    str = ''
-    if request_session_attempt.empty?
-      4.times do
-        str << "%button.btn.btn-danger.marks{:disabled => 'disabled', :type => 'button'} x\n"
-      end
-    else
-      request_session_attempt.each_char do |el|
-        str << "%button.btn.btn-success.marks{:disabled => 'disabled', :type => 'button'} +\n" if el == '+'
-        str << "%button.btn.btn-primary.marks{:disabled => 'disabled', :type => 'button'} -\n" if el == '-'
+    to_haml = if request_session_attempt.empty?
+                (1..4).map { "%button.btn.btn-danger.marks{:disabled => 'disabled', :type => 'button'} #{NONE}\n" }.join
+              else
+                helper_show_element_decorator(request_session_attempt).join
+              end
+    Haml::Engine.new(to_haml).to_html
+  end
+
+  def helper_show_element_decorator(request_session_attempt)
+    request_session_attempt.chars.map do |element|
+      if element == PLUS
+        "%button.btn.btn-success.marks{:disabled => 'disabled', :type => 'button'} #{PLUS}\n"
+      else
+        "%button.btn.btn-primary.marks{:disabled => 'disabled', :type => 'button'} #{MINUS}\n"
       end
     end
-    Haml::Engine.new(str).to_html
   end
 
   def to_hash(game_session)
