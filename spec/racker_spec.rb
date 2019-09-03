@@ -33,7 +33,13 @@ RSpec.describe Racker do
     end
 
     context 'when statistics path' do
-      before { get '/statistics' }
+      let(:path) { Codebreaker::DatabaseModule::FILE_NAME }
+      before do
+        File.new(path, 'w+')
+        get '/statistics'
+      end
+
+      after { File.delete(path) }
 
       it { expect(last_response.status).to eq 200 }
       it { expect(last_response.body).to include I18n.t(:top_players) }
